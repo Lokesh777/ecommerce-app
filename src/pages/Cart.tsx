@@ -55,7 +55,7 @@ const Cart = () => {
                     src={item.image}
                     alt={item.title}
                     style={styles.image}
-                    loading="lazy"
+                    loading="lazy" decoding="async" 
                   />
 
                   <div style={styles.info}>

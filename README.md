@@ -123,6 +123,7 @@ This project was iteratively optimized using **Lighthouse audits** and performan
 * **Efficient Data Fetching:** Caching & conditional API calls
 * **Lazy Loading:** Images & routes
 * **Accessibility Fixes:** Proper labels, semantic structure, contrast improvements
+![alt text](image-1.png)
 
 ---
 
@@ -185,30 +186,11 @@ src/
 * Keyboard-friendly interactions
 * Improved color contrast for readability
 
----
-
-## 🤖 Use of AI Tools
-
-AI tools were used strictly for:
-
-* Debugging assistance
-* Syntax/reference lookups
-* Optimization guidance
-
-All architectural decisions and implementations were manually designed and integrated.
-
----
 
 ## 📬 Contact
 
 **Lokesh Kumar**
 Frontend Developer
 📧 [lokeshdevgan777@gmail.com](mailto:lokeshdevgan777@gmail.com)
-
----
-
-## ⭐ Final Notes
-
-This project focuses on **real-world frontend engineering practices**, including performance optimization, scalable architecture, and user-centric design.
 
 ---

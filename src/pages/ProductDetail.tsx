@@ -63,7 +63,7 @@ const ProductDetail = () => {
         ← Back
       </button>
       <h3 style={style.title}>{title}</h3>
-      <img style={style.img} src={image} alt={title} loading="lazy" />
+      <img style={style.img} src={image} alt={title} loading="lazy" decoding="async" />
       <h3> ₹{price}</h3>
       <div style={style.rating}>
         <MemoStarRating rating={rating.rate} />
