@@ -1,6 +1,7 @@
-import React, { CSSProperties } from "react";
-import StarRating from "./StarRating";
+import React, { CSSProperties, lazy } from "react";
 import { Link } from "react-router-dom";
+
+const StarRating = lazy(() => import("./StarRating"));
 
 export interface ProductDetailsProps {
   id: number;
@@ -23,11 +24,26 @@ const Product: React.FC<ProductDetailsProps> = React.memo(
 
     const reviewText =
       rating.count < 2 ? `${rating.count} Review` : `${rating.count} Reviews`;
-
-    return (
+       return (
       <article style={style.card}>
         <Link to={`/product/${id}`} style={style.link}>
-          <img style={style.img} src={image} alt={title} loading="lazy" />
+          <img
+            src={`https://res.cloudinary.com/demo/image/fetch/f_auto,q_auto,w_300/${image}`}
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            width="200"
+            height="150"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = image;
+            }}
+            style={{
+              width: "100%",
+              height: "150px",
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
           <h3> ₹{price}</h3>
 
           <div style={style.rating}>

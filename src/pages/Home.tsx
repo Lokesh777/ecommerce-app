@@ -128,18 +128,21 @@ const Home = () => {
         {cat}
       </label>
     ))}
-
-    <select
-      style={style.dropDown}
-      value={sort}
-      onChange={(e) => handleSortChange(e.target.value)}
-    >
-      <option value="">Sort</option>
-      <option value="priceLow">Price: Low → High</option>
-      <option value="priceHigh">Price: High → Low</option>
-      <option value="ratingHigh">Rating: High → Low</option>
-      <option value="ratingLow">Rating: Low → High</option>
-    </select>
+    <div>
+      <label htmlFor="sort">Sort Products:</label>
+      <select
+        id="sort"
+        style={style.dropDown}
+        value={sort}
+        onChange={(e) => handleSortChange(e.target.value)}
+      >
+        <option value="">Sort</option>
+        <option value="priceLow">Price: Low → High</option>
+        <option value="priceHigh">Price: High → Low</option>
+        <option value="ratingHigh">Rating: High → Low</option>
+        <option value="ratingLow">Rating: Low → High</option>
+      </select>
+    </div>
   </section>
 
   <section style={style.container}>
@@ -174,7 +177,7 @@ const style: { [key: string]: CSSProperties } = {
     justifyContent: "space-between",
     gap: "10px",
     padding: "20px 16px 10px 16px",
-    backgroundColor: "white",
+    backgroundColor: "#ffffff",
   },
 
   container: {

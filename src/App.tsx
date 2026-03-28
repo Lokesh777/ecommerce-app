@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CSSProperties, lazy, Suspense } from "react";
-import ProductDetail from "./pages/ProductDetail";
 import { CartProvider } from "./context/CartContext";
 import Navbar from "./components/Navbar";
 import "./App.css";
 
 const Home = lazy(() => import("./pages/Home"));
 const Cart = lazy(() => import("./pages/Cart"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 
 function App() {
   return (
