@@ -1,6 +1,9 @@
 import { CSSProperties } from "react";
+interface StarRatingProps {
+  rating: number;
+}
 
-const StarRating = ({ rating }:{ rating: number }) => {
+const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
   const maxStars = 5;
   const safeRating = Math.min(rating, maxStars);
 

@@ -2,8 +2,11 @@
   background-color: #1e293b;
   padding: 0.8rem 1rem;
   color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  z-index: 1000;  
+  z-index: 1000;
 }
 
 .navbar-container {
@@ -61,8 +64,4 @@
   .nav-links.active {
     display: flex;
   }
-  .navbar {
-  position: sticky;
-  z-index: 1000;  
-}
 }

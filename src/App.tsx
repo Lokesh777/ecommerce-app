@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { lazy, Suspense } from "react";
-const Home = lazy(() => import("./pages/Home"));
-const Cart = lazy(() => import("./pages/Cart"));
+import { CSSProperties, lazy, Suspense } from "react";
 import ProductDetail from "./pages/ProductDetail";
 import { CartProvider } from "./context/CartContext";
 import Navbar from "./components/Navbar";
+import './App.css';
+
+const Home = lazy(() => import("./pages/Home"));
+const Cart = lazy(() => import("./pages/Cart"));
 
 function App() {
   return (
@@ -27,7 +29,8 @@ function App() {
 
 export default App;
 
-const style = {
+const style: { [key: string]: CSSProperties } = {
   main: {
+    marginTop: "60px",
   },
 };

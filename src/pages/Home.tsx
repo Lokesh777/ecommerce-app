@@ -1,59 +1,77 @@
-import { CSSProperties, useEffect, useMemo, useState } from "react";
-import { getProducts } from "../services/api";
+import { CSSProperties, useEffect, useState } from "react";
+import {
+  getCategories,
+  getProducts,
+  getProductsByCategory,
+} from "../services/api";
 import Product, { ProductDetailsProps } from "../components/Card";
 import { useSearchParams } from "react-router-dom";
 
 const Home = () => {
   const [products, setProduct] = useState<ProductDetailsProps[]>([]);
+  const [allProductsCache, setAllProductsCache] = useState<
+    ProductDetailsProps[] | null
+  >(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const categories = searchParams.getAll("category"); // multiple
   const sort = searchParams.get("sort") || "";
   const [loading, setLoading] = useState(true);
+  const [categoryList, setCategoryList] = useState<string[]>([]);
+
+  useEffect(() => {
+    getCategories().then(setCategoryList);
+  }, []);
+  const categoriesKey = categories.join(",");
 
   useEffect(() => {
     let isMounted = true;
-    const fetch = async () => {
+
+    const fetchProducts = async () => {
+      setLoading(true);
+
       try {
-        const res = await getProducts();
-        if (isMounted) {
-          setProduct(res);
+        let data: ProductDetailsProps[] = [];
+
+        if (categories.length > 0) {
+          const results = await Promise.all(
+            categories.map((cat) => getProductsByCategory(cat)),
+          );
+          data = results.flat();
+        } else {
+          // ✅ cache usage
+          if (allProductsCache) {
+            data = allProductsCache;
+          } else {
+            data = await getProducts();
+            setAllProductsCache(data);
+          }
         }
+
+        // ✅ sorting
+        if (sort === "priceLow") {
+          data.sort((a, b) => a.price - b.price);
+        } else if (sort === "priceHigh") {
+          data.sort((a, b) => b.price - a.price);
+        } else if (sort === "ratingHigh") {
+          data.sort((a, b) => b.rating.rate - a.rating.rate);
+        } else if (sort === "ratingLow") {
+          data.sort((a, b) => a.rating.rate - b.rating.rate);
+        }
+
+        if (isMounted) setProduct(data);
       } catch (error) {
         console.error("Failed to fetch product", error);
       } finally {
         setLoading(false);
       }
     };
-    fetch();
+
+    fetchProducts();
+
     return () => {
-      isMounted = false; // ✅ cleanup
+      isMounted = false;
     };
-  }, []);
-
-  const filterProducts = useMemo(() => {
-    let temp = [...products];
-    // ✅ Multiple filter
-    if (categories.length > 0) {
-      temp = temp.filter((p) => categories.includes(p.category));
-    }
-    if (sort === "priceLow") {
-      temp.sort((a, b) => a.price - b.price);
-    }
-
-    if (sort === "priceHigh") {
-      temp.sort((a, b) => b.price - a.price);
-    }
-
-    if (sort === "ratingHigh") {
-      temp.sort((a, b) => b?.rating.rate - a?.rating.rate);
-    }
-
-    if (sort === "ratingLow") {
-      temp.sort((a, b) => a?.rating.rate - b?.rating.rate);
-    }
-
-    return temp;
-  }, [sort, categories, products]);
+  }, [categoriesKey, sort, ]);
 
   const handleCategoryChange = (cat: string) => {
     let updated = [...categories];
@@ -79,33 +97,33 @@ const Home = () => {
 
   if (loading) {
     return (
-     <div style={{
-      width: "50px",
-      height: "50px",
-      border: "5px solid #eee",
-      borderTop: "5px solid #1e293b",
-      borderRadius: "50%",
-      animation: "spin 1s linear infinite",
-      margin: "100px auto"
-    }} />
+      <div
+        style={{
+          width: "50px",
+          height: "50px",
+          border: "5px solid #eee",
+          borderTop: "5px solid #1e293b",
+          borderRadius: "50%",
+          animation: "spin 1s linear infinite",
+          margin: "100px auto",
+        }}
+      />
     );
   }
   return (
     <div style={style.body}>
       <p></p>
       <div style={style.filter}>
-        {["electronics", "jewelery", "men's clothing", "women's clothing"].map(
-          (cat) => (
-            <label style={style.multifilter} key={cat}>
-              <input
-                type="checkbox"
-                checked={categories.includes(cat)}
-                onChange={() => handleCategoryChange(cat)}
-              />
-              {cat}
-            </label>
-          ),
-        )}
+        {categoryList.map((cat) => (
+          <label style={style.multifilter} key={cat}>
+            <input
+              type="checkbox"
+              checked={categories.includes(cat)}
+              onChange={() => handleCategoryChange(cat)}
+            />
+            {cat}
+          </label>
+        ))}
         <select
           style={style.dropDown}
           value={sort}
@@ -131,7 +149,7 @@ const Home = () => {
                 }}
               />
             ))
-          : filterProducts.map((product) => (
+          : products.map((product) => (
               <Product key={product.id} {...product} />
             ))}
       </div>
@@ -142,21 +160,21 @@ export default Home;
 
 const style: { [key: string]: CSSProperties } = {
   body: {
-    height: "90vh",
     display: "flex",
     flexDirection: "column",
     position: "relative",
+    width:"100%",
   },
   filter: {
     position: "sticky",
-    top: 0,
-    background: "white",
+    top: 50,
     zIndex: 10,
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "space-between",
     gap: "10px",
-    padding: "10px 16px",
+    padding: "20px 16px 10px 16px",
+    backgroundColor: "white",
   },
 
   container: {

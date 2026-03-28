@@ -3,6 +3,7 @@ import StarRating from "./StarRating";
 import { Link } from "react-router-dom";
 
 export interface ProductDetailsProps {
+  id: number;
   title: string;
   category: string;
   description: string;
@@ -12,7 +13,6 @@ export interface ProductDetailsProps {
     count: number;
     rate: number;
   };
-  id: number;
 }
 
 const MemoStarRating = React.memo(StarRating);
@@ -29,7 +29,7 @@ const reviewText =
     <Link to={`/product/${id}`} style={style.link}>
       <div style={style?.card}>
         <img style={style.img} src={image} alt={title} loading="lazy" />
-        <h3>${price}</h3>
+        <h3> ₹{price}</h3>
         <div style={style.rating}>
           <MemoStarRating rating={rating.rate} />
           <p style={style.review}>

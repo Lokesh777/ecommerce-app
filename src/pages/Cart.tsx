@@ -1,10 +1,11 @@
 import { useCart } from "../context/CartContext";
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 
 const Cart = () => {
-  const { cart, removeFromCart, clearCart } = useCart();
+  const { cart, removeFromCart, clearCart, updateQuantity } = useCart();
   const [showToast, setShowToast] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false); 
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [removingItems, setRemovingItems] = useState<number[]>([]);
 
   const totalItems: number = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -19,12 +20,21 @@ const Cart = () => {
     setTimeout(() => {
       setIsProcessing(false);
       setShowToast(true);
-      clearCart(); 
+      clearCart();
 
       setTimeout(() => {
         setShowToast(false);
       }, 2000);
-    }, 2000); 
+    }, 2000);
+  };
+
+  const handleRemove = (id: number) => {
+    setRemovingItems((prev) => [...prev, id]);
+
+    setTimeout(() => {
+      removeFromCart(id);
+      setRemovingItems((prev) => prev.filter((itemId) => itemId !== id));
+    }, 300); // match the CSS transition duration
   };
 
   return (
@@ -35,28 +45,51 @@ const Cart = () => {
         <p style={styles.empty}>Your cart is empty</p>
       ) : (
         <div style={styles.grid}>
-          {/* LEFT */}
           <div style={styles.items}>
-            {cart.map((item) => (
-              <div key={item.id} style={styles.card}>
-                <img src={item.image} alt={item.title} style={styles.image} loading="lazy" />
-
-                <div style={styles.info}>
-                  <h4>{item.title}</h4>
-                  <p>
-                    ₹{item.price} × {item.quantity}
-                  </p>
+            {cart.map((item) => {
+              const isRemoving = removingItems.includes(item.id);
+              return (
+                <div key={item.id} style={cardStyle(isRemoving)}>
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    style={styles.image}
+                    loading="lazy"
+                  />
+                  <div style={styles.info}>
+                    <h4>{item.title}</h4>
+                    <p>
+                      ₹{item.price} × {item.quantity}
+                    </p>
+                  </div>
+                  <div style={styles.quantityContainer}>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      disabled={item.quantity === 1 || isProcessing}
+                    >
+                      −
+                    </button>
+                    <span style={styles.qtyText}>{item.quantity}</span>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      disabled={isProcessing}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    aria-label="Remove item from cart"
+                    style={styles.removeBtn}
+                    onClick={() => handleRemove(item.id)}
+                    disabled={isProcessing}
+                  >
+                    ✕
+                  </button>
                 </div>
-
-                <button
-                  style={styles.removeBtn}
-                  onClick={() => removeFromCart(item.id)}
-                  disabled={isProcessing}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* RIGHT */}
@@ -96,11 +129,10 @@ const Cart = () => {
 
 export default Cart;
 
-const styles: any = {
+const styles: { [key: string]: CSSProperties } = {
   container: {
     padding: "20px",
     maxWidth: "1200px",
-    margin: "auto",
   },
   heading: {
     marginBottom: "20px",
@@ -118,16 +150,17 @@ const styles: any = {
     flex: "2",
     minWidth: "300px",
   },
-  card: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "10px",
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    marginBottom: "10px",
-    background: "#fff",
-  },
+  // card: {
+  //   display: "flex",
+  //   alignItems: "center",
+  //   justifyContent: "space-between",
+  //   padding: "10px",
+  //   border: "1px solid #ddd",
+  //   borderRadius: "10px",
+  //   marginBottom: "10px",
+  //   background: "#fff",
+  //   position:"relative",
+  // },
   image: {
     width: "60px",
     height: "60px",
@@ -144,6 +177,9 @@ const styles: any = {
     padding: "6px 10px",
     borderRadius: "5px",
     cursor: "pointer",
+    position: "absolute",
+    top: 10,
+    right: 10,
   },
   summary: {
     flex: "1",
@@ -173,4 +209,39 @@ const styles: any = {
     padding: "12px 20px",
     borderRadius: "8px",
   },
+  quantityContainer: {
+    display: "flex",
+    alignItems: "end",
+    gap: "6px",
+    marginTop: "5px",
+
+  },
+  qtyBtn: {
+    padding: "2px 6px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    background: "#fff",
+    cursor: "pointer",
+    minWidth: "28px",
+  },
+  qtyText: {
+    minWidth: "20px",
+    textAlign: "center",
+    display: "inline-block",
+  },
 };
+
+const cardStyle = (isRemoving: boolean): CSSProperties => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  padding: "10px",
+  border: "1px solid #ddd",
+  borderRadius: "10px",
+  marginBottom: "10px",
+  background: "#fff",
+  transition: "all 0.3s ease",
+  transform: isRemoving ? "scale(0.9)" : "scale(1)",
+  opacity: isRemoving ? 0 : 1,
+  position: "relative", // ✅ cast ensures TypeScript accepts it
+});
