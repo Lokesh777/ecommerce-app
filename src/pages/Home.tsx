@@ -21,7 +21,6 @@ const Home = () => {
   useEffect(() => {
     getCategories().then(setCategoryList);
   }, []);
-  const categoriesKey = categories.join(",");
 
   useEffect(() => {
     let isMounted = true;
@@ -31,6 +30,8 @@ const Home = () => {
 
       try {
         let data: ProductDetailsProps[] = [];
+
+        const categories = searchParams.getAll("category"); // ✅ moved inside
 
         if (categories.length > 0) {
           const results = await Promise.all(
@@ -71,7 +72,7 @@ const Home = () => {
     return () => {
       isMounted = false;
     };
-  }, [categoriesKey, sort, ]);
+  }, [searchParams, sort, allProductsCache]); 
 
   const handleCategoryChange = (cat: string) => {
     let updated = [...categories];
@@ -111,52 +112,51 @@ const Home = () => {
     );
   }
   return (
-   <section data-testid="product-card" style={style.body}>
-  
-  <header>
-    <p></p>
-  </header>
+    <section data-testid="product-card" style={style.body}>
+      <header>
+        <p></p>
+      </header>
 
-  <section style={style.filter}>
-    {categoryList.map((cat) => (
-      <label style={style.multifilter} key={cat}>
-        <input
-          type="checkbox"
-          checked={categories.includes(cat)}
-          onChange={() => handleCategoryChange(cat)}
-        />
-        {cat}
-      </label>
-    ))}
-    <div>
-      <label htmlFor="sort">Sort Products:</label>
-      <select
-        id="sort"
-        style={style.dropDown}
-        value={sort}
-        onChange={(e) => handleSortChange(e.target.value)}
-      >
-        <option value="">Sort</option>
-        <option value="priceLow">Price: Low → High</option>
-        <option value="priceHigh">Price: High → Low</option>
-        <option value="ratingHigh">Rating: High → Low</option>
-        <option value="ratingLow">Rating: Low → High</option>
-      </select>
-    </div>
-  </section>
-
-  <section style={style.container}>
-    {loading
-      ? Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} style={style.skeleton} />
-        ))
-      : products.map((product) => (
-          <article data-testid="product-item" key={product.id}>
-            <Product {...product} />
-          </article>
+      <section style={style.filter}>
+        {categoryList.map((cat) => (
+          <label style={style.multifilter} key={cat}>
+            <input
+              type="checkbox"
+              checked={categories.includes(cat)}
+              onChange={() => handleCategoryChange(cat)}
+            />
+            {cat}
+          </label>
         ))}
-  </section>
-</section>
+        <div>
+          <label htmlFor="sort">Sort Products:</label>
+          <select
+            id="sort"
+            style={style.dropDown}
+            value={sort}
+            onChange={(e) => handleSortChange(e.target.value)}
+          >
+            <option value="">Sort</option>
+            <option value="priceLow">Price: Low → High</option>
+            <option value="priceHigh">Price: High → Low</option>
+            <option value="ratingHigh">Rating: High → Low</option>
+            <option value="ratingLow">Rating: Low → High</option>
+          </select>
+        </div>
+      </section>
+
+      <section style={style.container}>
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} style={style.skeleton} />
+            ))
+          : products.map((product) => (
+              <article data-testid="product-item" key={product.id}>
+                <Product {...product} />
+              </article>
+            ))}
+      </section>
+    </section>
   );
 };
 export default Home;
@@ -166,7 +166,7 @@ const style: { [key: string]: CSSProperties } = {
     display: "flex",
     flexDirection: "column",
     position: "relative",
-    width:"100%",
+    width: "100%",
   },
   filter: {
     position: "sticky",

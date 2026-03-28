@@ -39,85 +39,90 @@ const Cart = () => {
 
   return (
     <main style={styles.container}>
-  <h2 style={styles.heading}>🛒 Your Cart</h2>
+      <h2 style={styles.heading}>🛒 Your Cart</h2>
 
-  {cart.length === 0 ? (
-    <p style={styles.empty}>Your cart is empty</p>
-  ) : (
-    <div style={styles.grid}>
-      
-      <section style={styles.items}>
-        {cart.map((item) => {
-          const isRemoving = removingItems.includes(item.id);
+      {cart.length === 0 ? (
+        <p style={styles.empty}>Your cart is empty</p>
+      ) : (
+        <div style={styles.grid}>
+          <section style={styles.items}>
+            {cart.map((item) => {
+              const isRemoving = removingItems.includes(item.id);
 
-          return (
-            <article key={item.id} style={cardStyle(isRemoving)}>
-              
-              <img
-                src={item.image}
-                alt={item.title}
-                style={styles.image}
-                loading="lazy"
-              />
+              return (
+                <article key={item.id} style={cardStyle(isRemoving)}>
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    style={styles.image}
+                    loading="lazy"
+                  />
 
-              <div style={styles.info}>
-                <h4>{item.title}</h4>
-                <p>
-                  ₹{item.price} × {item.quantity}
-                </p>
-              </div>
+                  <div style={styles.info}>
+                    <h4>{item.title}</h4>
+                    <p>
+                      ₹{item.price} × {item.quantity}
+                    </p>
+                  </div>
 
-              <div style={styles.quantityContainer}>
-                <button
-                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  disabled={item.quantity === 1 || isProcessing}
-                >
-                  −
-                </button>
+                  <div style={styles.quantityContainer}>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      disabled={item.quantity === 1 || isProcessing}
+                    >
+                      −
+                    </button>
 
-                <span>{item.quantity}</span>
+                    <span>{item.quantity}</span>
 
-                <button
-                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  disabled={isProcessing}
-                >
-                  +
-                </button>
-              </div>
+                    <button
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      disabled={isProcessing}
+                    >
+                      +
+                    </button>
+                  </div>
 
-              <button
-                aria-label="Remove item"
-                onClick={() => handleRemove(item.id)}
-                disabled={isProcessing}
-                style={styles.removeBtn}
-              >
-                ✕
-              </button>
-            </article>
-          );
-        })}
-      </section>
+                  <button
+                    aria-label="Remove item"
+                    onClick={() => handleRemove(item.id)}
+                    disabled={isProcessing}
+                    style={styles.removeBtn}
+                  >
+                    ✕
+                  </button>
+                </article>
+              );
+            })}
+          </section>
 
-      <aside style={styles.summary}>
-        <h3>Order Summary</h3>
-        <p>Total Items: <strong>{totalItems}</strong></p>
-        <p>Total Price: <strong>₹{totalPrice.toFixed(2)}</strong></p>
+          <aside style={styles.summary}>
+            <h3>Order Summary</h3>
+            <p>
+              Total Items: <strong>{totalItems}</strong>
+            </p>
+            <p>
+              Total Price: <strong>₹{totalPrice.toFixed(2)}</strong>
+            </p>
 
-        <button
-          style={{
-            ...styles.checkoutBtn,
-            opacity: isProcessing ? 0.7 : 1,
-            cursor: isProcessing ? "not-allowed" : "pointer",
-          }}
-          onClick={handleCheckout}
-          disabled={isProcessing}
-        >
-          {isProcessing ? "Processing..." : "Checkout"}
-        </button>
-      </aside>
-    </div>
-  )}
-</main>
+            <button
+              style={{
+                ...styles.checkoutBtn,
+                opacity: isProcessing ? 0.7 : 1,
+                cursor: isProcessing ? "not-allowed" : "pointer",
+              }}
+              onClick={handleCheckout}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Processing..." : "Checkout"}
+            </button>
+          </aside>
+        </div>
+      )}
+      {showToast && (
+        <div style={styles.toast}>✅ Order placed successfully!</div>
+      )}
+    </main>
   );
 };
 
@@ -202,6 +207,7 @@ const styles: { [key: string]: CSSProperties } = {
     color: "#fff",
     padding: "12px 20px",
     borderRadius: "8px",
+    transition: "all 0.3s ease",
   },
   quantityContainer: {
     display: "flex",
