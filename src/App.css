@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+/* 🔥 Fix semantic layout breaking UI */
+main, section, article, aside, header, nav {
+  display: block;
+  margin: 0;
+  padding: 0;
+}

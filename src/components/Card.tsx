@@ -17,30 +17,30 @@ export interface ProductDetailsProps {
 
 const MemoStarRating = React.memo(StarRating);
 
-const Product: React.FC<ProductDetailsProps> =  React.memo(({ title, image, price, rating, id }) => {
-  // { title, category, description, image, price, rating, id }
+const Product: React.FC<ProductDetailsProps> = React.memo(
+  ({ title, image, price, rating, id }) => {
+    // { title, category, description, image, price, rating, id }
 
-const reviewText =
-  rating.count < 2
-    ? `${rating.count} Review`
-    : `${rating.count} Reviews`;
+    const reviewText =
+      rating.count < 2 ? `${rating.count} Review` : `${rating.count} Reviews`;
 
-  return (
-    <Link to={`/product/${id}`} style={style.link}>
-      <div style={style?.card}>
-        <img style={style.img} src={image} alt={title} loading="lazy" />
-        <h3> ₹{price}</h3>
-        <div style={style.rating}>
-          <MemoStarRating rating={rating.rate} />
-          <p style={style.review}>
-            {reviewText}
-          </p>
-        </div>
-        <h3 style={style.title}>{title}</h3>
-      </div>
-    </Link>
-  );
-});
+    return (
+      <article style={style.card}>
+        <Link to={`/product/${id}`} style={style.link}>
+          <img style={style.img} src={image} alt={title} loading="lazy" />
+          <h3> ₹{price}</h3>
+
+          <div style={style.rating}>
+            <MemoStarRating rating={rating.rate} />
+            <p style={style.review}>{reviewText}</p>
+          </div>
+
+          <h3 style={style.title}>{title}</h3>
+        </Link>
+      </article>
+    );
+  },
+);
 
 export default Product;
 
@@ -56,7 +56,7 @@ const style: { [key: string]: CSSProperties } = {
     width: "100%",
     height: "150px",
     objectFit: "contain",
-     display: "block",//avoid the gaps
+    display: "block", //avoid the gaps
   },
   rating: {
     display: "flex",
@@ -71,7 +71,7 @@ const style: { [key: string]: CSSProperties } = {
     textDecoration: "none",
     color: "inherit",
   },
-   title: {
+  title: {
     fontSize: "14px",
     overflow: "hidden",
     textOverflow: "ellipsis",

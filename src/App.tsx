@@ -3,7 +3,7 @@ import { CSSProperties, lazy, Suspense } from "react";
 import ProductDetail from "./pages/ProductDetail";
 import { CartProvider } from "./context/CartContext";
 import Navbar from "./components/Navbar";
-import './App.css';
+import "./App.css";
 
 const Home = lazy(() => import("./pages/Home"));
 const Cart = lazy(() => import("./pages/Cart"));
@@ -13,7 +13,8 @@ function App() {
     <CartProvider>
       <BrowserRouter>
         <Navbar />
-        <div style={style.main}>
+
+        <main style={style.main}>
           <Suspense fallback={<div className="loader"></div>}>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -21,7 +22,7 @@ function App() {
               <Route path="/cart" element={<Cart />} />
             </Routes>
           </Suspense>
-        </div>
+        </main>
       </BrowserRouter>
     </CartProvider>
   );

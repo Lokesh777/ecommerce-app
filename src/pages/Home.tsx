@@ -111,49 +111,49 @@ const Home = () => {
     );
   }
   return (
-    <div style={style.body}>
-      <p></p>
-      <div style={style.filter}>
-        {categoryList.map((cat) => (
-          <label style={style.multifilter} key={cat}>
-            <input
-              type="checkbox"
-              checked={categories.includes(cat)}
-              onChange={() => handleCategoryChange(cat)}
-            />
-            {cat}
-          </label>
-        ))}
-        <select
-          style={style.dropDown}
-          value={sort}
-          onChange={(e) => handleSortChange(e.target.value)}
-        >
-          <option value="">Sort</option>
-          <option value="priceLow">Price: Low → High</option>
-          <option value="priceHigh">Price: High → Low</option>
-          <option value="ratingHigh">Rating: High → Low</option>
-          <option value="ratingLow">Rating: Low → High</option>
-        </select>
-      </div>
+   <section data-testid="product-card" style={style.body}>
+  
+  <header>
+    <p></p>
+  </header>
 
-      <div style={style.container}>
-        {loading
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  height: "200px",
-                  background: "#eee",
-                  borderRadius: "8px",
-                }}
-              />
-            ))
-          : products.map((product) => (
-              <Product key={product.id} {...product} />
-            ))}
-      </div>
-    </div>
+  <section style={style.filter}>
+    {categoryList.map((cat) => (
+      <label style={style.multifilter} key={cat}>
+        <input
+          type="checkbox"
+          checked={categories.includes(cat)}
+          onChange={() => handleCategoryChange(cat)}
+        />
+        {cat}
+      </label>
+    ))}
+
+    <select
+      style={style.dropDown}
+      value={sort}
+      onChange={(e) => handleSortChange(e.target.value)}
+    >
+      <option value="">Sort</option>
+      <option value="priceLow">Price: Low → High</option>
+      <option value="priceHigh">Price: High → Low</option>
+      <option value="ratingHigh">Rating: High → Low</option>
+      <option value="ratingLow">Rating: Low → High</option>
+    </select>
+  </section>
+
+  <section style={style.container}>
+    {loading
+      ? Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} style={style.skeleton} />
+        ))
+      : products.map((product) => (
+          <article data-testid="product-item" key={product.id}>
+            <Product {...product} />
+          </article>
+        ))}
+  </section>
+</section>
   );
 };
 export default Home;

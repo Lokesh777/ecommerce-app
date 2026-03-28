@@ -12,21 +12,18 @@ const Navbar: React.FC = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        
-        {/* Logo */}
         <Link to="/" className="logo">
           ShopEasy
         </Link>
 
-        {/* Hamburger */}
-        <div
+        <button
           className="hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
         >
           ☰
-        </div>
+        </button>
 
-        {/* Links */}
         <div className={`nav-links ${menuOpen ? "active" : ""}`}>
           <Link to="/" onClick={() => setMenuOpen(false)}>
             Home

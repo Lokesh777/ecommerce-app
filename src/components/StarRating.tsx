@@ -10,11 +10,13 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
   const percentage = (safeRating / maxStars) * 100;
 
   return (
-    <div style={styles.wrapper}>
+    <div
+      style={styles.wrapper}
+      role="img"
+      aria-label={`Rating: ${rating} out of 5`}
+    >
       <div style={styles.back}>★★★★★</div>
-      <div style={{ ...styles.front, width: `${percentage}%` }}>
-        ★★★★★
-      </div>
+      <div style={{ ...styles.front, width: `${percentage}%` }}>★★★★★</div>
     </div>
   );
 };
@@ -32,7 +34,7 @@ const styles: { [key: string]: CSSProperties } = {
     color: "#ccc", // empty stars
   },
   front: {
-    color: "#f5a623", // filled stars 
+    color: "#f5a623", // filled stars
     position: "absolute",
     top: 0,
     left: 0,

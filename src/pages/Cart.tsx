@@ -38,92 +38,86 @@ const Cart = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>🛒 Your Cart</h2>
+    <main style={styles.container}>
+  <h2 style={styles.heading}>🛒 Your Cart</h2>
 
-      {cart.length === 0 ? (
-        <p style={styles.empty}>Your cart is empty</p>
-      ) : (
-        <div style={styles.grid}>
-          <div style={styles.items}>
-            {cart.map((item) => {
-              const isRemoving = removingItems.includes(item.id);
-              return (
-                <div key={item.id} style={cardStyle(isRemoving)}>
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    style={styles.image}
-                    loading="lazy"
-                  />
-                  <div style={styles.info}>
-                    <h4>{item.title}</h4>
-                    <p>
-                      ₹{item.price} × {item.quantity}
-                    </p>
-                  </div>
-                  <div style={styles.quantityContainer}>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      disabled={item.quantity === 1 || isProcessing}
-                    >
-                      −
-                    </button>
-                    <span style={styles.qtyText}>{item.quantity}</span>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      disabled={isProcessing}
-                    >
-                      +
-                    </button>
-                  </div>
-                  <button
-                    aria-label="Remove item from cart"
-                    style={styles.removeBtn}
-                    onClick={() => handleRemove(item.id)}
-                    disabled={isProcessing}
-                  >
-                    ✕
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+  {cart.length === 0 ? (
+    <p style={styles.empty}>Your cart is empty</p>
+  ) : (
+    <div style={styles.grid}>
+      
+      <section style={styles.items}>
+        {cart.map((item) => {
+          const isRemoving = removingItems.includes(item.id);
 
-          {/* RIGHT */}
-          <div style={styles.summary}>
-            <h3>Order Summary</h3>
-            <p>
-              Total Items: <strong>{totalItems}</strong>
-            </p>
-            <p>
-              Total Price: <strong>₹{totalPrice.toFixed(2)}</strong>
-            </p>
+          return (
+            <article key={item.id} style={cardStyle(isRemoving)}>
+              
+              <img
+                src={item.image}
+                alt={item.title}
+                style={styles.image}
+                loading="lazy"
+              />
 
-            <button
-              style={{
-                ...styles.checkoutBtn,
-                opacity: isProcessing ? 0.7 : 1,
-                cursor: isProcessing ? "not-allowed" : "pointer",
-              }}
-              onClick={handleCheckout}
-              disabled={isProcessing}
-            >
-              {isProcessing ? <span>⏳ Processing...</span> : "Checkout"}
-            </button>
-          </div>
-        </div>
-      )}
+              <div style={styles.info}>
+                <h4>{item.title}</h4>
+                <p>
+                  ₹{item.price} × {item.quantity}
+                </p>
+              </div>
 
-      {/* ✅ Toast */}
-      {showToast && (
-        <div style={styles.toast}>
-          ✅ Payment Successful! Order Confirmed 🎉
-        </div>
-      )}
+              <div style={styles.quantityContainer}>
+                <button
+                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                  disabled={item.quantity === 1 || isProcessing}
+                >
+                  −
+                </button>
+
+                <span>{item.quantity}</span>
+
+                <button
+                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  disabled={isProcessing}
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                aria-label="Remove item"
+                onClick={() => handleRemove(item.id)}
+                disabled={isProcessing}
+                style={styles.removeBtn}
+              >
+                ✕
+              </button>
+            </article>
+          );
+        })}
+      </section>
+
+      <aside style={styles.summary}>
+        <h3>Order Summary</h3>
+        <p>Total Items: <strong>{totalItems}</strong></p>
+        <p>Total Price: <strong>₹{totalPrice.toFixed(2)}</strong></p>
+
+        <button
+          style={{
+            ...styles.checkoutBtn,
+            opacity: isProcessing ? 0.7 : 1,
+            cursor: isProcessing ? "not-allowed" : "pointer",
+          }}
+          onClick={handleCheckout}
+          disabled={isProcessing}
+        >
+          {isProcessing ? "Processing..." : "Checkout"}
+        </button>
+      </aside>
     </div>
+  )}
+</main>
   );
 };
 
@@ -171,7 +165,7 @@ const styles: { [key: string]: CSSProperties } = {
     marginLeft: "10px",
   },
   removeBtn: {
-    background: "red",
+    background: "#ef4444",
     color: "#fff",
     border: "none",
     padding: "6px 10px",
@@ -214,7 +208,6 @@ const styles: { [key: string]: CSSProperties } = {
     alignItems: "end",
     gap: "6px",
     marginTop: "5px",
-
   },
   qtyBtn: {
     padding: "2px 6px",
