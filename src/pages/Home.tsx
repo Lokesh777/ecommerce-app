@@ -95,7 +95,7 @@ const Home = () => {
     return () => {
       isMounted = false;
     };
-  }, [categoryKey, sort, page]);
+  }, [categoryKey, sort, page, activeCategory]);
 
   const handleCategoryChange = (cat: string) => {
     let updated = [...categories];
