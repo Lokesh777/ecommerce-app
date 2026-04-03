@@ -22,20 +22,29 @@ const Product: React.FC<ProductDetailsProps> = React.memo(
   ({ title, image, price, rating, id }) => {
     // { title, category, description, image, price, rating, id }
 
+    const cardImageSrc = image?.startsWith("http")
+      ? image
+      : `https://res.cloudinary.com/demo/image/fetch/f_auto,q_auto,w_300/${image}`;
+
+    const fallbackImageSrc = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="#f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#6b7280" font-family="Arial" font-size="22">No Image</text></svg>`,
+    )}`;
+
     const reviewText =
       rating.count < 2 ? `${rating.count} Review` : `${rating.count} Reviews`;
-       return (
+    return (
       <article style={style.card}>
         <Link to={`/product/${id}`} style={style.link}>
           <img
-            src={`https://res.cloudinary.com/demo/image/fetch/f_auto,q_auto,w_300/${image}`}
+            src={cardImageSrc}
             alt={title}
             loading="lazy"
             decoding="async"
             width="200"
             height="150"
             onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = image;
+              // Avoid re-requesting the same broken URL endlessly.
+              (e.currentTarget as HTMLImageElement).src = fallbackImageSrc;
             }}
             style={{
               width: "100%",

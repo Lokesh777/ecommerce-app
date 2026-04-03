@@ -1,78 +1,101 @@
 import { CSSProperties, useEffect, useState } from "react";
 import {
   getCategories,
-  getProducts,
-  getProductsByCategory,
+  getProductsPaginated,
+  getProductsByCategoryPaginated,
 } from "../services/api";
 import Product, { ProductDetailsProps } from "../components/Card";
 import { useSearchParams } from "react-router-dom";
 
 const Home = () => {
+  const PAGE_SIZE = 10;
   const [products, setProduct] = useState<ProductDetailsProps[]>([]);
-  const [allProductsCache, setAllProductsCache] = useState<
-    ProductDetailsProps[] | null
-  >(null);
+  const [hasRating, setHasRating] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const categories = searchParams.getAll("category"); // multiple
+  const categoryKey = categories.slice().sort().join("|");
+  const selectedCategories = categoryKey ? categoryKey.split("|") : [];
+  // For simplicity (interview-friendly), if multiple categories are selected we use the first one.
+  const activeCategory = selectedCategories[0] ?? null;
   const sort = searchParams.get("sort") || "";
   const [loading, setLoading] = useState(true);
   const [categoryList, setCategoryList] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     getCategories().then(setCategoryList);
   }, []);
 
+  // Reset pagination when filters/sort change.
+  useEffect(() => {
+    setPage(1);
+  }, [categoryKey, sort]);
+
   useEffect(() => {
     let isMounted = true;
 
-    const fetchProducts = async () => {
+    const sortProducts = (
+      items: ProductDetailsProps[],
+      computedHasRating: boolean,
+    ) => {
+      const sorted = [...items];
+      if (sort === "priceLow") sorted.sort((a, b) => a.price - b.price);
+      if (sort === "priceHigh") sorted.sort((a, b) => b.price - a.price);
+
+      // Rating exists only if your backend provides it; EscuelaJS doesn't,
+      // so these stay disabled by `hasRating`.
+      if (sort === "ratingHigh" && computedHasRating) {
+        sorted.sort((a, b) => b.rating.rate - a.rating.rate);
+      }
+      if (sort === "ratingLow" && computedHasRating) {
+        sorted.sort((a, b) => a.rating.rate - b.rating.rate);
+      }
+      return sorted;
+    };
+
+    const fetchProductsPage = async () => {
       setLoading(true);
+      const offset = (page - 1) * PAGE_SIZE;
 
       try {
-        let data: ProductDetailsProps[] = [];
+        const items =
+          activeCategory === null
+            ? await getProductsPaginated(offset, PAGE_SIZE)
+            : await getProductsByCategoryPaginated(
+                activeCategory,
+                offset,
+                PAGE_SIZE,
+              );
 
-        const categories = searchParams.getAll("category"); // ✅ moved inside
+        const computedHasRating = items.some(
+          (p) => (p.rating?.count ?? 0) > 0 || (p.rating?.rate ?? 0) > 0,
+        );
 
-        if (categories.length > 0) {
-          const results = await Promise.all(
-            categories.map((cat) => getProductsByCategory(cat)),
-          );
-          data = results.flat();
-        } else {
-          // ✅ cache usage
-          if (allProductsCache) {
-            data = allProductsCache;
-          } else {
-            data = await getProducts();
-            setAllProductsCache(data);
-          }
+        const data = sortProducts(items, computedHasRating);
+
+        if (isMounted) {
+          setHasRating(computedHasRating);
+          setProduct(data);
+          setHasMore(items.length === PAGE_SIZE);
         }
-
-        // ✅ sorting
-        if (sort === "priceLow") {
-          data.sort((a, b) => a.price - b.price);
-        } else if (sort === "priceHigh") {
-          data.sort((a, b) => b.price - a.price);
-        } else if (sort === "ratingHigh") {
-          data.sort((a, b) => b.rating.rate - a.rating.rate);
-        } else if (sort === "ratingLow") {
-          data.sort((a, b) => a.rating.rate - b.rating.rate);
-        }
-
-        if (isMounted) setProduct(data);
       } catch (error) {
-        console.error("Failed to fetch product", error);
+        console.error("Failed to fetch products", error);
+        if (isMounted) {
+          setProduct([]);
+          setHasMore(false);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchProductsPage();
 
     return () => {
       isMounted = false;
     };
-  }, [searchParams, sort, allProductsCache]); 
+  }, [categoryKey, sort, page]);
 
   const handleCategoryChange = (cat: string) => {
     let updated = [...categories];
@@ -90,6 +113,12 @@ const Home = () => {
   };
 
   const handleSortChange = (value: string) => {
+    if (
+      (value === "ratingHigh" || value === "ratingLow") &&
+      !hasRating
+    ) {
+      return;
+    }
     setSearchParams({
       category: categories,
       sort: value,
@@ -139,22 +168,46 @@ const Home = () => {
             <option value="">Sort</option>
             <option value="priceLow">Price: Low → High</option>
             <option value="priceHigh">Price: High → Low</option>
-            <option value="ratingHigh">Rating: High → Low</option>
-            <option value="ratingLow">Rating: Low → High</option>
+            <option value="ratingHigh" disabled={!hasRating}>
+              Rating: High → Low
+            </option>
+            <option value="ratingLow" disabled={!hasRating}>
+              Rating: Low → High
+            </option>
           </select>
         </div>
       </section>
 
       <section style={style.container}>
-        {loading
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} style={style.skeleton} />
-            ))
-          : products.map((product) => (
-              <article data-testid="product-item" key={product.id}>
-                <Product {...product} />
-              </article>
-            ))}
+        {products.length === 0 ? (
+          <p>No products found.</p>
+        ) : (
+          products.map((product) => (
+            <article data-testid="product-item" key={product.id}>
+              <Product {...product} />
+            </article>
+          ))
+        )}
+      </section>
+
+      <section style={style.pagination}>
+        <button
+          type="button"
+          style={style.pageBtn}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page <= 1 || loading}
+        >
+          Prev
+        </button>
+        <span style={style.pageText}>Page {page}</span>
+        <button
+          type="button"
+          style={style.pageBtn}
+          onClick={() => setPage((p) => p + 1)}
+          disabled={!hasMore || loading}
+        >
+          Next
+        </button>
       </section>
     </section>
   );
@@ -197,5 +250,22 @@ const style: { [key: string]: CSSProperties } = {
   multifilter: {
     // display:'flex',
     // alignItems:"center",
+  },
+  pagination: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "12px",
+    padding: "10px 16px 30px 16px",
+  },
+  pageBtn: {
+    padding: "8px 14px",
+    borderRadius: "6px",
+    border: "1px solid #e5e7eb",
+    background: "#ffffff",
+    cursor: "pointer",
+  },
+  pageText: {
+    fontWeight: 600,
   },
 };
